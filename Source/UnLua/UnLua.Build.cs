@@ -39,6 +39,7 @@ public class UnLua : ModuleRules
         PublicIncludePathModuleNames.AddRange(
             new string[] {
                 "ApplicationCore",
+                "Lua",
             }
         );
 
@@ -79,5 +80,20 @@ public class UnLua : ModuleRules
         {
             PublicDefinitions.Add("SUPPORTS_RPC_CALL=1");
         }
+
+        bool bSupportLuasocket = true;
+        if (bSupportLuasocket)
+        {
+            PublicDependencyModuleNames.Add("LibLuasocket");
+            PublicDefinitions.Add("SUPPORTS_LUASOCKET=1");
+        }
+
+        bool bSupportLuaPanda = bSupportLuasocket && true;
+        if (bSupportLuaPanda)
+        {
+            PublicDependencyModuleNames.Add("LuaPanda");
+            PublicDefinitions.Add("SUPPORTS_LUAPANDA=1");
+        }
+
     }
 }

@@ -13,6 +13,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 
 #include "UnLuaPrivate.h"
+#include "UnLuaInterface.h"
+#include "UnLuaEditorNotificationHelper.h"
+
+// engine header
 #include "Misc/FileHelper.h"
 #include "Engine/Blueprint.h"
 #include "Blueprint/UserWidget.h"
@@ -20,12 +24,33 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/IPluginManager.h"
 
+#define LOCTEXT_NAMESPACE "UnLuaEditorCore"
+
 // create Lua template file for the selected blueprint
-bool CreateLuaTemplateFile(UBlueprint *Blueprint)
+bool CreateLuaTemplateFile(UBlueprint *Blueprint, bool bShowFileNotifiction)
 {
     if (Blueprint)
     {
         UClass *Class = Blueprint->GeneratedClass;
+		
+		bool bImplUnLuaInterface = false;
+
+		for (const auto& InterfaceItem : Blueprint->ImplementedInterfaces)
+		{
+			if (InterfaceItem.Interface.Get()->IsChildOf(UUnLuaInterface::StaticClass()))
+			{
+				bImplUnLuaInterface = true;
+				break;
+			}
+		}
+
+		if (!bImplUnLuaInterface)
+		{
+			UE_LOG(LogUnLua, Error, TEXT("The Blueprint class is not add UnLuaInterface!"));
+			auto Msg = LOCTEXT("BlueprintIsntInheritanceUnLua","The Blueprint class is not add UnLuaInterface!");
+			UUnLuaEditorNotificationHelper::CreateSaveFileNotify(Msg, TEXT(""));
+			return false;
+		}
         FString ClassName = Class->GetName();
         FString OuterPath = Class->GetPathName();
         int32 LastIndex;
@@ -38,6 +63,11 @@ bool CreateLuaTemplateFile(UBlueprint *Blueprint)
         if (FPaths::FileExists(FileName))
         {
             UE_LOG(LogUnLua, Warning, TEXT("Lua file (%s) is already existed!"), *ClassName);
+			if (bShowFileNotifiction)
+			{
+				auto Msg = LOCTEXT("LuaFileIsAlreadtExisted", "Lua file is already existed!");
+				UUnLuaEditorNotificationHelper::CreateSaveFileNotify(Msg, FileName,SNotificationItem::ECompletionState::CS_Success);
+			}
             return false;
         }
 
@@ -69,8 +99,15 @@ bool CreateLuaTemplateFile(UBlueprint *Blueprint)
         FFileHelper::LoadFileToString(Content, *TemplateName);
         Content = Content.Replace(TEXT("TemplateName"), *ClassName);
 
-        return FFileHelper::SaveStringToFile(Content, *FileName);
+        bool bSaveStatues = FFileHelper::SaveStringToFile(Content, *FileName);
+		if (bShowFileNotifiction)
+		{
+			auto Msg = LOCTEXT("CreateLuaFile", "Lua file is Created!");
+			UUnLuaEditorNotificationHelper::CreateSaveFileNotify(Msg, FileName,SNotificationItem::ECompletionState::CS_Success);
+		}
+		return bSaveStatues;
     }
     return false;
 }
 
+#undef LOCTEXT_NAMESPACE

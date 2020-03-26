@@ -30,7 +30,7 @@
 
 #define LOCTEXT_NAMESPACE "FUnLuaEditorModule"
 
-extern bool CreateLuaTemplateFile(UBlueprint *Blueprint);
+extern bool CreateLuaTemplateFile(UBlueprint *Blueprint,bool bShowFileNotifiction=false);
 
 // copy dependency file to plugin's content dir
 static bool CopyDependencyFile(const TCHAR *FileName)
@@ -115,7 +115,7 @@ private:
 
         UBlueprint *Blueprint = ContextSensitiveObjects.Num() < 1 ? nullptr : Cast<UBlueprint>(ContextSensitiveObjects[0]);
         TSharedPtr<class FUICommandList> NewCommandList = MakeShareable(new FUICommandList);
-        NewCommandList->MapAction(FUnLuaEditorCommands::Get().CreateLuaTemplate, FExecuteAction::CreateLambda([Blueprint]() { CreateLuaTemplateFile(Blueprint); }), FCanExecuteAction());
+        NewCommandList->MapAction(FUnLuaEditorCommands::Get().CreateLuaTemplate, FExecuteAction::CreateLambda([Blueprint]() { CreateLuaTemplateFile(Blueprint,true); }), FCanExecuteAction());
         TSharedRef<FExtender> ToolbarExtender(new FExtender());
         ToolbarExtender->AddToolBarExtension("Debugging", EExtensionHook::After, NewCommandList, FToolBarExtensionDelegate::CreateRaw(this, &FUnLuaEditorModule::AddToolbarExtension));
         return ToolbarExtender;
@@ -127,7 +127,7 @@ private:
 
         UAnimBlueprint *AnimBlueprint = InAnimationBlueprintEditor->GetPersonaToolkit()->GetAnimBlueprint();
         TSharedPtr<class FUICommandList> NewCommandList = MakeShareable(new FUICommandList);
-        NewCommandList->MapAction(FUnLuaEditorCommands::Get().CreateLuaTemplate, FExecuteAction::CreateLambda([AnimBlueprint]() { CreateLuaTemplateFile(AnimBlueprint); }), FCanExecuteAction());
+        NewCommandList->MapAction(FUnLuaEditorCommands::Get().CreateLuaTemplate, FExecuteAction::CreateLambda([AnimBlueprint]() { CreateLuaTemplateFile(AnimBlueprint,true); }), FCanExecuteAction());
         TSharedRef<FExtender> ToolbarExtender(new FExtender());
         ToolbarExtender->AddToolBarExtension("Debugging", EExtensionHook::After, NewCommandList, FToolBarExtensionDelegate::CreateRaw(this, &FUnLuaEditorModule::AddToolbarExtension));
         return ToolbarExtender;

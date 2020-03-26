@@ -220,7 +220,7 @@ void RemoveUFunction(UFunction *Function, UClass *OuterClass)
  */
 void OverrideUFunction(UFunction *Function, FNativeFuncPtr NativeFunc, void *Userdata, bool bInsertOpcodes)
 {
-    if (!Function->HasAnyFunctionFlags(FUNC_Net) || Function->HasAnyFunctionFlags(FUNC_Native))
+	if (!Function->HasAnyFunctionFlags(FUNC_Net) || Function->HasAnyFunctionFlags(FUNC_Native))
     {
         Function->SetNativeFunc(NativeFunc);
     }

@@ -32,6 +32,14 @@
 #include "Editor.h"
 #endif
 
+#if SUPPORTS_LUASOCKET
+#include "LibLuasocket.h"
+#endif
+
+#if SUPPORTS_LUAPANDA
+#include "LuaPanda.h"
+#endif
+
 #if UE_BUILD_TEST
 #include "Tests/UnLuaPerformanceTestProxy.h"
 
@@ -148,7 +156,7 @@ void FLuaContext::CreateState()
             FString PlatformName(TEXT("Mac"));
             FString LibName(TEXT("liblua.dylib"));
 #endif
-            FString LibPath = FString::Printf(TEXT("%s/Source/ThirdParty/Lua/binaries/%s/%s"), *IPluginManager::Get().FindPlugin(TEXT("UnLua"))->GetBaseDir(), *PlatformName, *LibName);
+            FString LibPath = FString::Printf(TEXT("%s/Source/ThirdParty/Lua/binarie/%s/%s"), *IPluginManager::Get().FindPlugin(TEXT("UnLua"))->GetBaseDir(), *PlatformName, *LibName);
             if (FPaths::FileExists(LibPath))
             {
                 LuaHandle = FPlatformProcess::GetDllHandle(*LibPath);
@@ -164,6 +172,38 @@ void FLuaContext::CreateState()
         L = lua_newstate(FLuaContext::LuaAllocator, nullptr);       // create main Lua thread
         check(L);
         luaL_openlibs(L);                                           // open all standard Lua libraries
+
+#if SUPPORTS_LUASOCKET
+		// Luasocket and luapanda
+		if (FLibLuasocketModule::IsAvailable())
+		{
+			FLibLuasocketModule::Get().SetupLuasocket(L);
+			lua_pushboolean(L, true);
+			lua_setglobal(L, "WITH_LUASOCKET");
+
+			UE_LOG(LogUnLua, Display, TEXT("Lua state setup with Luasocket."));
+#if SUPPORTS_LUAPANDA
+			if (UE_BUILD_SHIPPING == 0 && FLuaPanda::IsAvailable())
+			{
+				FLuaPanda::Get().SetupLuaPanda(L);
+				lua_pushboolean(L, true);
+				lua_setglobal(L, "WITH_LUA_DEBUG");
+				UE_LOG(LogUnLua, Display, TEXT("Lua state setup with LuaPanda."));
+			}
+#endif
+		}
+#endif
+		lua_pushboolean(L, !!UE_BUILD_SHIPPING);
+		lua_setglobal(L, "BUILD_SHIPPING");
+
+		lua_pushboolean(L, !!UE_BUILD_TEST);
+		lua_setglobal(L, "BUILD_TEST");
+
+		lua_pushboolean(L, !!UE_BUILD_DEVELOPMENT);
+		lua_setglobal(L, "BUILD_DEVELOPMENT");
+
+		lua_pushboolean(L, !!UE_BUILD_DEBUG);
+		lua_setglobal(L, "BUILD_DEBUG");
 
         lua_pushstring(L, "ObjectMap");                             // create weak table 'ObjectMap'
         CreateWeakValueTable(L);

@@ -14,29 +14,53 @@
     "IsBetaVersion": false,
     "Installed": false,
     "CanBeUsedWithUnrealHeaderTool": true,
-    "Modules":
-    [
-        {
-            "Name" : "UnLua",
-            "Type" : "Runtime",
-            "LoadingPhase" : "PostConfigInit",
-            "WhitelistPlatforms" : [ "Win64", "Mac", "IOS", "Android" ]
-        },
-        {
-            "Name" : "UnLuaEditor",
-            "Type" : "Editor",
-            "LoadingPhase" : "Default",
-            "WhitelistPlatforms" : [ "Win64", "Mac" ]
-        },
-        {
-            "Name" : "UnLuaDefaultParamCollector",
-            "Type" : "Program",
-            "LoadingPhase" : "PostConfigInit"
-        },
-        {
-            "Name" : "UnLuaIntelliSense",
-            "Type" : "Program",
-            "LoadingPhase" : "PostConfigInit"
-        }
-    ]
+  "Modules": [
+    {
+      "Name": "UnLua",
+      "Type": "Runtime",
+      "LoadingPhase": "PostConfigInit",
+      "WhitelistPlatforms": [ "Win64", "Mac", "IOS", "Android" ]
+    },
+    {
+      "Name": "UnLuaEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [ "Win64", "Mac" ]
+    },
+    {
+      "Name": "UnLuaDefaultParamCollector",
+      "Type": "Program",
+      "LoadingPhase": "PostConfigInit"
+    },
+    {
+      "Name": "UnLuaIntelliSense",
+      "Type": "Program",
+      "LoadingPhase": "PostConfigInit"
+    },
+    {
+      "Name": "LibLuasocket",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LuaPanda",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LibLpeg",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LibSproto",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LibLuacrypt",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
 }

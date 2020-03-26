@@ -7,6 +7,9 @@
 --
 
 require "UnLua"
+if WITH_LUA_DEBUG then
+    require("LuaPanda").start("127.0.0.1",8818)
+end
 
 local TemplateName = Class()
 
@@ -16,13 +19,16 @@ local TemplateName = Class()
 --function TemplateName:UserConstructionScript()
 --end
 
---function TemplateName:ReceiveBeginPlay()
---end
+function TemplateName:ReceiveBeginPlay()
+	self.Overridden.ReceiveBeginPlay()	
+end
 
 --function TemplateName:ReceiveEndPlay()
+--	self.Overridden.ReceiveEndPlay()	
 --end
 
 -- function TemplateName:ReceiveTick(DeltaSeconds)
+--	self.Overridden.ReceiveTick(DeltaSeconds)	
 -- end
 
 --function TemplateName:ReceiveAnyDamage(Damage, DamageType, InstigatedBy, DamageCauser)

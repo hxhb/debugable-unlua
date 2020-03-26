@@ -35,28 +35,35 @@ int32 UClass_Load(lua_State *L)
         return 0;
     }
 
-    const TCHAR *Suffix = TEXT("_C");
+    
     FString ClassPath(ClassName);
-    int32 Index = INDEX_NONE;
-    ClassPath.FindChar(TCHAR('.'), Index);
-    if (Index == INDEX_NONE)
-    {
-        ClassPath.FindLastChar(TCHAR('/'), Index);
-        if (Index != INDEX_NONE)
-        {
-            const FString Name = ClassPath.Mid(Index + 1);
-            ClassPath += TCHAR('.');
-            ClassPath += Name;
-            ClassPath.AppendChars(Suffix, 2);
-        }
-    }
-    else
-    {
-        if (ClassPath.Right(2) != TEXT("_C"))
-        {
-            ClassPath.AppendChars(TEXT("_C"), 2);
-        }
-    }
+
+	bool IsCppClass = ClassPath.StartsWith(TEXT("/Script"));
+
+	if (!IsCppClass)
+	{
+		const TCHAR *Suffix = TEXT("_C");
+		int32 Index = INDEX_NONE;
+		ClassPath.FindChar(TCHAR('.'), Index);
+		if (Index == INDEX_NONE)
+		{
+			ClassPath.FindLastChar(TCHAR('/'), Index);
+			if (Index != INDEX_NONE)
+			{
+				const FString Name = ClassPath.Mid(Index + 1);
+				ClassPath += TCHAR('.');
+				ClassPath += Name;
+				ClassPath.AppendChars(Suffix, 2);
+			}
+		}
+		else
+		{
+			if (ClassPath.Right(2) != TEXT("_C"))
+			{
+				ClassPath.AppendChars(TEXT("_C"), 2);
+			}
+		}
+	}
 
     FClassDesc *ClassDesc = RegisterClass(L, TCHAR_TO_ANSI(*ClassPath));
     if (ClassDesc && ClassDesc->AsClass())

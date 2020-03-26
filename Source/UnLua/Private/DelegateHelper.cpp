@@ -507,8 +507,7 @@ void FDelegateHelper::CreateSignature(UFunction *TemplateFunction, FName FuncNam
     SignatureDesc->CallbackRef = CallbackRef;
     Signatures.Add(SignatureFunction, SignatureDesc);
 
-    // set custom thunk function for the duplicated UFunction
-    OverrideUFunction(SignatureFunction, (FNativeFuncPtr)&FDelegateHelper::ProcessDelegate, SignatureDesc, false);
+	OverrideUFunction(SignatureFunction, (FNativeFuncPtr)&FDelegateHelper::ProcessDelegate, SignatureDesc, false);      // set custom thunk function for the duplicated UFunction
 
     uint8 NumOutProperties = SignatureDesc->SignatureFunctionDesc->GetNumOutProperties();
     uint8 NumNonConstRefProperties = SignatureDesc->SignatureFunctionDesc->HasReturnProperty() ? NumOutProperties - 1 : NumOutProperties;

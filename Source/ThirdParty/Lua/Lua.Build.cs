@@ -22,6 +22,11 @@ public class Lua : ModuleRules
     {
         Type = ModuleType.External;
 
+        PublicIncludePaths.AddRange(new string[]
+        {
+            Path.Combine(ModuleDirectory,"include")
+        });
+
         if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Mac || 
             Target.Platform == UnrealTargetPlatform.IOS || Target.Platform == UnrealTargetPlatform.Android)
         {
@@ -31,14 +36,14 @@ public class Lua : ModuleRules
             if (Target.Platform == UnrealTargetPlatform.Win64)
             {
                 LuaDynLibName = "Lua.dll";
-                LuaDynamicLibPath = Path.Combine(ModuleDirectory, "binaries/Win64", LuaDynLibName);
+                LuaDynamicLibPath = Path.Combine(ModuleDirectory, "binarie/Win64", LuaDynLibName);
 
                 string Format = Path.Combine(ModuleDirectory, "{0}/Win64/Lua.lib");
-                PublicAdditionalLibraries.Add(String.Format(Format, Target.bBuildEditor == true ? "binaries" : "lib"));
+                PublicAdditionalLibraries.Add(String.Format(Format, Target.bBuildEditor == true ? "binarie" : "lib"));
             }
             else if (Target.Platform == UnrealTargetPlatform.Mac)
             {
-                LuaDynLibName = Path.Combine(ModuleDirectory, "binaries/Mac/liblua.dylib");
+                LuaDynLibName = Path.Combine(ModuleDirectory, "binarie/Mac/liblua.dylib");
                 LuaDynamicLibPath = LuaDynLibName;
 
                 if (!Target.bBuildEditor)
