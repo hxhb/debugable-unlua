@@ -17,6 +17,7 @@
 #include "UnLuaEditorNotificationHelper.h"
 
 // engine header
+#include "Kismet/KismetSystemLibrary.h"
 #include "Misc/FileHelper.h"
 #include "Engine/Blueprint.h"
 #include "Blueprint/UserWidget.h"
@@ -44,12 +45,12 @@ bool CreateLuaTemplateFile(UBlueprint *Blueprint, bool bShowFileNotifiction)
 			}
 		}
 
+
 		if (!bImplUnLuaInterface)
 		{
-			UE_LOG(LogUnLua, Error, TEXT("The Blueprint class is not add UnLuaInterface!"));
+			UE_LOG(LogUnLua, Warning, TEXT("The Blueprint class is not directly add UnLuaInterface!"));
 			auto Msg = LOCTEXT("BlueprintIsntInheritanceUnLua","The Blueprint class is not add UnLuaInterface!");
 			UUnLuaEditorNotificationHelper::CreateSaveFileNotify(Msg, TEXT(""));
-			return false;
 		}
         FString ClassName = Class->GetName();
         FString OuterPath = Class->GetPathName();
@@ -94,6 +95,11 @@ bool CreateLuaTemplateFile(UBlueprint *Blueprint, bool bShowFileNotifiction)
             // default BlueprintEvents for ActorComponent
             TemplateName = ContentDir + TEXT("/ActorComponentTemplate.lua");
         }
+		else if (Class->IsChildOf(UObject::StaticClass()))
+		{
+			// default BlueprintEvents for ActorComponent
+			TemplateName = ContentDir + TEXT("/ObjectTemplate.lua");
+		}
 
         FString Content;
         FFileHelper::LoadFileToString(Content, *TemplateName);
