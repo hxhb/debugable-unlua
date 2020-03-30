@@ -936,7 +936,8 @@ FPropertyDesc* FPropertyDesc::Create(UProperty *InProperty)
  * Function descriptor constructor
  */
 FFunctionDesc::FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefaultParams, int32 InFunctionRef)
-    : Function(InFunction), DefaultParams(InDefaultParams), ReturnPropertyIndex(INDEX_NONE), LatentPropertyIndex(INDEX_NONE), FunctionRef(InFunctionRef), bStaticFunc(false), bInterfaceFunc(false)
+    : Function(InFunction), DefaultParams(InDefaultParams), ReturnPropertyIndex(INDEX_NONE), LatentPropertyIndex(INDEX_NONE)
+    , FunctionRef(InFunctionRef), NumRefProperties(0), NumCalls(0), bStaticFunc(false), bInterfaceFunc(false)
 {
     check(InFunction);
 
@@ -985,6 +986,8 @@ FFunctionDesc::FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefa
         }
         else if (Property->HasAnyPropertyFlags(CPF_OutParm))
         {
+            ++NumRefProperties;
+
             // pre-create OutParmRec for 'out' property
 #if !SUPPORTS_RPC_CALL
             FOutParmRec *Out = (FOutParmRec*)FMemory::Malloc(sizeof(FOutParmRec), alignof(FOutParmRec));
@@ -1012,8 +1015,6 @@ FFunctionDesc::FFunctionDesc(UFunction *InFunction, FParameterCollection *InDefa
             }
         }
     }
-
-    CleanupFlags.AddZeroed(Properties.Num());
 
 #if !SUPPORTS_RPC_CALL
     if (CurrentOutParmRec)
@@ -1152,7 +1153,9 @@ int32 FFunctionDesc::CallUE(lua_State *L, int32 NumParams, void *Userdata)
     bool bRemote = false;
 #endif
 
-    void *Params = PreCall(L, NumParams, FirstParamIndex, Userdata);        // prepare values of properties
+    TArray<bool> CleanupFlags;
+    CleanupFlags.AddZeroed(Properties.Num());
+    void *Params = PreCall(L, NumParams, FirstParamIndex, CleanupFlags, Userdata);      // prepare values of properties
 
     UFunction *FinalFunction = Function;
     if (bInterfaceFunc)
@@ -1210,7 +1213,7 @@ int32 FFunctionDesc::CallUE(lua_State *L, int32 NumParams, void *Userdata)
         }
     }
 
-    int32 NumReturnValues = PostCall(L, NumParams, FirstParamIndex, Params);        // push 'out' properties to Lua stack
+    int32 NumReturnValues = PostCall(L, NumParams, FirstParamIndex, Params, CleanupFlags);      // push 'out' properties to Lua stack
     return NumReturnValues;
 }
 
@@ -1225,9 +1228,11 @@ int32 FFunctionDesc::ExecuteDelegate(lua_State *L, int32 NumParams, int32 FirstP
         return 0;
     }
 
-    void *Params = PreCall(L, NumParams, FirstParamIndex);
+    TArray<bool> CleanupFlags;
+    CleanupFlags.AddZeroed(Properties.Num());
+    void *Params = PreCall(L, NumParams, FirstParamIndex, CleanupFlags);
     ScriptDelegate->ProcessDelegate<UObject>(Params);
-    int32 NumReturnValues = PostCall(L, NumParams, FirstParamIndex, Params);
+    int32 NumReturnValues = PostCall(L, NumParams, FirstParamIndex, Params, CleanupFlags);
     return NumReturnValues;
 }
 
@@ -1242,23 +1247,29 @@ void FFunctionDesc::BroadcastMulticastDelegate(lua_State *L, int32 NumParams, in
         return;
     }
 
-    void *Params = PreCall(L, NumParams, FirstParamIndex);
+    TArray<bool> CleanupFlags;
+    CleanupFlags.AddZeroed(Properties.Num());
+    void *Params = PreCall(L, NumParams, FirstParamIndex, CleanupFlags);
     ScriptDelegate->ProcessMulticastDelegate<UObject>(Params);
-    PostCall(L, NumParams, FirstParamIndex, Params);    // !!! have no return values for multi-cast delegates
+    PostCall(L, NumParams, FirstParamIndex, Params, CleanupFlags);      // !!! have no return values for multi-cast delegates
 }
 
 /**
  * Prepare values of properties for the UFunction
  */
-void* FFunctionDesc::PreCall(lua_State *L, int32 NumParams, int32 FirstParamIndex, void *Userdata)
+void* FFunctionDesc::PreCall(lua_State *L, int32 NumParams, int32 FirstParamIndex, TArray<bool> &CleanupFlags, void *Userdata)
 {
+    void *Params = nullptr;
 #if ENABLE_PERSISTENT_PARAM_BUFFER
-    void *Params = Buffer;
-#else
-    void *Params = Function->ParmsSize > 0 ? FMemory::Malloc(Function->ParmsSize, 16) : nullptr;
+    if (NumCalls < 1)
+    {
+        Params = Buffer;
+    }
+    else
 #endif
+    Params = Function->ParmsSize > 0 ? FMemory::Malloc(Function->ParmsSize, 16) : nullptr;
 
-    FMemory::Memzero(CleanupFlags.GetData(), CleanupFlags.Num());
+    ++NumCalls;
 
     int32 ParamIndex = 0;
     for (int32 i = 0; i < Properties.Num(); ++i)
@@ -1305,7 +1316,7 @@ void* FFunctionDesc::PreCall(lua_State *L, int32 NumParams, int32 FirstParamInde
 /**
  * Handling 'out' properties
  */
-int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamIndex, void *Params)
+int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamIndex, void *Params, const TArray<bool> &CleanupFlags)
 {
     int32 NumReturnValues = 0;
 
@@ -1344,9 +1355,12 @@ int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamInd
         }
     }
 
-#if !ENABLE_PERSISTENT_PARAM_BUFFER
-    FMemory::Free(Params);
+    --NumCalls;
+
+#if ENABLE_PERSISTENT_PARAM_BUFFER
+    if (NumCalls > 0)
 #endif
+    FMemory::Free(Params);
 
     return NumReturnValues;
 }
@@ -1354,19 +1368,15 @@ int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamInd
 /**
  * Get OutParmRec for a non-const reference property
  */
-static FOutParmRec* GetNonConstOutParmRec(FOutParmRec *OutParam, UProperty *OutProperty)
+static FOutParmRec* FindOutParmRec(FOutParmRec *OutParam, UProperty *OutProperty)
 {
-    if (!OutProperty->HasAnyPropertyFlags(CPF_ConstParm))
+    while (OutParam)
     {
-        FOutParmRec *Out = OutParam;
-        while (Out)
+        if (OutParam->Property == OutProperty)
         {
-            if (Out->Property == OutProperty)
-            {
-                return Out;
-            }
-            Out = Out->NextOutParm;
+            return OutParam;
         }
+        OutParam = OutParam->NextOutParm;
     }
     return nullptr;
 }
@@ -1377,12 +1387,25 @@ static FOutParmRec* GetNonConstOutParmRec(FOutParmRec *OutParam, UProperty *OutP
 bool FFunctionDesc::CallLuaInternal(lua_State *L, void *InParams, FOutParmRec *OutParams, void *RetValueAddress) const
 {
     // prepare parameters for Lua function
+    FOutParmRec *OutParam = OutParams;
     for (const FPropertyDesc *Property : Properties)
     {
         if (Property->IsReturnParameter())
         {
             continue;
         }
+
+        if (Property->IsConstOutParameter())
+        {
+            OutParam = FindOutParmRec(OutParam, Property->GetProperty());
+            if (OutParam)
+            {
+                Property->GetValueInternal(L, OutParam->PropAddr, false);
+                OutParam = OutParam->NextOutParm;
+                continue;
+            }
+        }
+
         Property->GetValue(L, InParams, false);
     }
 
@@ -1395,11 +1418,11 @@ bool FFunctionDesc::CallLuaInternal(lua_State *L, void *InParams, FOutParmRec *O
     }
 
     int32 OutPropertyIndex = -NumResult;
-    FOutParmRec *OutParam = OutParams;
+    OutParam = OutParams;
     for (int32 i = 0; i < OutPropertyIndices.Num(); ++i)
     {
         FPropertyDesc *OutProperty = Properties[OutPropertyIndices[i]];
-        OutParam = GetNonConstOutParmRec(OutParam, OutProperty->GetProperty());
+        OutParam = FindOutParmRec(OutParam, OutProperty->GetProperty());
         check(OutParam);
         int32 Type = lua_type(L, OutPropertyIndex);
         if (Type == LUA_TNIL)
