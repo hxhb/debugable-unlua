@@ -30,6 +30,7 @@
 
 #if WITH_EDITOR
 #include "Editor.h"
+#include "GameDelegates.h"
 #endif
 
 #if SUPPORTS_LUASOCKET
@@ -130,6 +131,7 @@ void FLuaContext::RegisterDelegates()
     FEditorDelegates::PostPIEStarted.AddRaw(GLuaCxt, &FLuaContext::PostPIEStarted);
     FEditorDelegates::PrePIEEnded.AddRaw(GLuaCxt, &FLuaContext::PrePIEEnded);
     FEditorDelegates::EndPIE.AddRaw(GLuaCxt, &FLuaContext::EndPIE);
+    FGameDelegates::Get().GetEndPlayMapDelegate().AddRaw(GLuaCxt, &FLuaContext::OnEndPlayMap);
 #endif
 }
 
@@ -818,13 +820,7 @@ void FLuaContext::PostPIEStarted(bool bIsSimulating)
  */
 void FLuaContext::PrePIEEnded(bool bIsSimulating)
 {
-    bIsPIE = false;
-    Cleanup(true);
-    Manager->CleanupDefaultInputs();
-    ServerWorld = nullptr;
-    LoadedWorlds.Empty();
-    CandidateInputComponents.Empty();
-    FWorldDelegates::OnWorldTickStart.Remove(OnWorldTickStartHandle);
+    //bIsPIE = false;
 }
 
 /**
@@ -832,6 +828,20 @@ void FLuaContext::PrePIEEnded(bool bIsSimulating)
  */
 void FLuaContext::EndPIE(bool bIsSimulating)
 {
+}
+
+/**
+ * Callback for FGameDelegates::EndPlayMapDelegate
+ */
+void FLuaContext::OnEndPlayMap()
+{
+    bIsPIE = false;
+    Cleanup(true);
+    Manager->CleanupDefaultInputs();
+    ServerWorld = nullptr;
+    LoadedWorlds.Empty();
+    CandidateInputComponents.Empty();
+    FWorldDelegates::OnWorldTickStart.Remove(OnWorldTickStartHandle);
 }
 #endif
 
@@ -1039,7 +1049,7 @@ void FLuaContext::Initialize()
  */
 void FLuaContext::Cleanup(bool bFullCleanup, UWorld *World)
 {
-    if (!bEnable || !bInitialized || !Manager)
+    if (!bEnable || !Manager)
     {
         return;
     }
