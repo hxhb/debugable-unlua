@@ -25,8 +25,11 @@ static int32 FPaths_Combine(lua_State *L)
 		FString arg = luaL_tolstring(L, index, nullptr);
 		if (FinalPath.IsEmpty())
 		{
-			if(!arg.IsEmpty())
+			if (!arg.IsEmpty())
+			{
 				FinalPath = arg;
+				continue;
+			}
 
 		}
 		if (!arg.IsEmpty())
