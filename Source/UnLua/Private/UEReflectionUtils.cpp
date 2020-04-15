@@ -1545,6 +1545,7 @@ FFieldDesc* FClassDesc::RegisterField(FName FieldName, FClassDesc *QueryClass)
     }
     else
     {
+#if ENGINE_MINOR_VERSION >22
         // a property or a function ?
         FProperty *Property = Struct->FindPropertyByName(FieldName);
         UFunction *Function = (!Property && Type == EType::CLASS) ? Class->FindFunctionByName(FieldName) : nullptr;
@@ -1558,7 +1559,15 @@ FFieldDesc* FClassDesc::RegisterField(FName FieldName, FClassDesc *QueryClass)
         {
             return nullptr;
         }
-
+#else
+		UProperty *Property = Struct->FindPropertyByName(FieldName);
+		UFunction *Function = (!Property && Type == EType::CLASS) ? Class->FindFunctionByName(FieldName) : nullptr;
+		UField *Field = Property ? (UField*)Property : Function;
+		if (!Field)
+		{
+			return nullptr;
+		}
+#endif
         UStruct *OuterStruct = Property ? Cast<UStruct>(GetPropertyOuter(Property)) : Cast<UStruct>(Function->GetOuter());
         if (OuterStruct)
         {
