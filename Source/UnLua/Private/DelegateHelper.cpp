@@ -70,7 +70,7 @@ void FSignatureDesc::Execute(FFrame &Stack, void *RetValueAddress)
     if (SignatureFunctionDesc)
     {
         ++NumCalls;         // inc calls, so it won't be deleted during call
-        SignatureFunctionDesc->CallLua(Stack, RetValueAddress, false, false);
+        SignatureFunctionDesc->CallLua(nullptr, Stack, RetValueAddress, false, false);
         --NumCalls;         // dec calls
         if (!NumCalls && bPendingKill)
         {

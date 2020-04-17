@@ -94,6 +94,6 @@ public class UnLua : ModuleRules
             PublicDependencyModuleNames.Add("LuaPanda");
             PublicDefinitions.Add("SUPPORTS_LUAPANDA=1");
         }
-
+        OptimizeCode = CodeOptimization.InShippingBuildsOnly;
     }
 }

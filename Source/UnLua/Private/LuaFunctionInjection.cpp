@@ -76,7 +76,10 @@ DEFINE_FUNCTION(FLuaInvoker::execCallLua)
         }
     }
 #endif
-    FuncDesc->CallLua(Stack, (void*)RESULT_PARAM, bRpcCall, bUnpackParams);
+	if (!FuncDesc->CallLua(Context, Stack, (void*)RESULT_PARAM, bRpcCall, bUnpackParams))
+	{
+		Stack.SkipCode(1);
+	}
 }
 
 /**
@@ -164,6 +167,11 @@ UFunction* DuplicateUFunction(UFunction *TemplateFunction, UClass *OuterClass, F
     DuplicationParams.DestName = NewFuncName;
     DuplicationParams.InternalFlagMask &= ~EInternalObjectFlags::Native;
     UFunction *NewFunc = Cast<UFunction>(StaticDuplicateObjectEx(DuplicationParams));
+
+	if (!NewFunc->GetNativeFunc())
+	{
+		NewFunc->SetNativeFunc(TemplateFunction->GetNativeFunc());
+	}
 #else
     UFunction *NewFunc = DuplicateObject(TemplateFunction, OuterClass, NewFuncName);
 #endif
