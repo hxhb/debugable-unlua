@@ -14,6 +14,7 @@
 
 #include "LuaFunctionInjection.h"
 #include "UEReflectionUtils.h"
+#include "Misc/MemStack.h"
 #include "GameFramework/Actor.h"
 
 #define CLEAR_INTERNAL_NATIVE_FLAG_DURING_DUPLICATION 1
@@ -76,10 +77,18 @@ DEFINE_FUNCTION(FLuaInvoker::execCallLua)
         }
     }
 #endif
-	if (!FuncDesc->CallLua(Context, Stack, (void*)RESULT_PARAM, bRpcCall, bUnpackParams))
-	{
-		Stack.SkipCode(1);
-	}
+
+    bool bSuccess = FuncDesc->CallLua(Context, Stack, (void*)RESULT_PARAM, bRpcCall, bUnpackParams);
+    if (!bSuccess && bUnpackParams)
+    {
+        FMemMark Mark(FMemStack::Get());
+        void *Params = New<uint8>(FMemStack::Get(), Func->ParmsSize, 16);
+        for (TFieldIterator<FProperty> It(Func); It && (It->PropertyFlags & CPF_Parm) == CPF_Parm; ++It)
+        {
+            Stack.Step(Stack.Object, It->ContainerPtrToValuePtr<uint8>(Params));
+        }
+        Stack.SkipCode(1);          // skip EX_EndFunctionParms
+    }
 }
 
 /**
@@ -167,11 +176,6 @@ UFunction* DuplicateUFunction(UFunction *TemplateFunction, UClass *OuterClass, F
     DuplicationParams.DestName = NewFuncName;
     DuplicationParams.InternalFlagMask &= ~EInternalObjectFlags::Native;
     UFunction *NewFunc = Cast<UFunction>(StaticDuplicateObjectEx(DuplicationParams));
-
-	if (!NewFunc->GetNativeFunc())
-	{
-		NewFunc->SetNativeFunc(TemplateFunction->GetNativeFunc());
-	}
 #else
     UFunction *NewFunc = DuplicateObject(TemplateFunction, OuterClass, NewFuncName);
 #endif
@@ -244,7 +248,7 @@ void RemoveUFunction(UFunction *Function, UClass *OuterClass)
  */
 void OverrideUFunction(UFunction *Function, FNativeFuncPtr NativeFunc, void *Userdata, bool bInsertOpcodes)
 {
-	if (!Function->HasAnyFunctionFlags(FUNC_Net) || Function->HasAnyFunctionFlags(FUNC_Native))
+    if (!Function->HasAnyFunctionFlags(FUNC_Net) || Function->HasAnyFunctionFlags(FUNC_Native))
     {
         Function->SetNativeFunc(NativeFunc);
     }
