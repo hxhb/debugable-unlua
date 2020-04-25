@@ -19,8 +19,8 @@
 #include "LuaContext.h"
 #include "LuaFunctionInjection.h"
 #include "DelegateHelper.h"
-#include "UEReflectionUtils.h"
 #include "UEObjectReferencer.h"
+#include "ReflectionUtils/ReflectionRegistry.h"
 #include "GameFramework/InputSettings.h"
 #include "Components/InputComponent.h"
 #include "Animation/AnimInstance.h"
@@ -784,6 +784,11 @@ void UUnLuaManager::ReplaceFunction(UFunction *TemplateFunction, UClass *OuterCl
     {
 #if ENABLE_CALL_OVERRIDDEN_FUNCTION
         FName NewFuncName(*FString::Printf(TEXT("%s%s"), *TemplateFunction->GetName(), TEXT("Copy")));
+        if (TemplateFunction->HasAnyFunctionFlags(FUNC_Native))
+        {
+            // call this before duplicate UFunction that has FUNC_Native to eliminate "Failed to bind native function" warnings.
+            OuterClass->AddNativeFunction(*NewFuncName.ToString(), TemplateFunction->GetNativeFunc());
+        }
         UFunction *NewFunc = DuplicateUFunction(TemplateFunction, OuterClass, NewFuncName);
         GReflectionRegistry.AddOverriddenFunction(TemplateFunction, NewFunc);
 #endif
