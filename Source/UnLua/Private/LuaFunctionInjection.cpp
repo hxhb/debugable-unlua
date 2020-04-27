@@ -179,11 +179,6 @@ UFunction* DuplicateUFunction(UFunction *TemplateFunction, UClass *OuterClass, F
 #else
     UFunction *NewFunc = DuplicateObject(TemplateFunction, OuterClass, NewFuncName);
 #endif
-
-	if (!NewFunc->GetNativeFunc())
-	{
-		NewFunc->SetNativeFunc(TemplateFunction->GetNativeFunc());
-	}
     NewFunc->PropertiesSize = TemplateFunction->PropertiesSize;
     NewFunc->MinAlignment = TemplateFunction->MinAlignment;
     int32 NumParams = NewFunc->NumParms;
