@@ -34,23 +34,16 @@ bool CreateLuaTemplateFile(UBlueprint *Blueprint, bool bShowFileNotifiction)
     {
         UClass *Class = Blueprint->GeneratedClass;
 		
-		bool bImplUnLuaInterface = false;
+		UClass* GeneratedClass = Blueprint->GeneratedClass;
 
-		for (const auto& InterfaceItem : Blueprint->ImplementedInterfaces)
-		{
-			if (InterfaceItem.Interface.Get()->IsChildOf(UUnLuaInterface::StaticClass()))
-			{
-				bImplUnLuaInterface = true;
-				break;
-			}
-		}
-
+		bool bImplUnLuaInterface = UKismetSystemLibrary::DoesImplementInterface(GeneratedClass->ClassDefaultObject, UUnLuaInterface::StaticClass());
 
 		if (!bImplUnLuaInterface)
 		{
 			UE_LOG(LogUnLua, Warning, TEXT("The Blueprint class is not directly add UnLuaInterface!"));
 			auto Msg = LOCTEXT("BlueprintIsntInheritanceUnLua","The Blueprint class is not add UnLuaInterface!");
 			UUnLuaEditorNotificationHelper::CreateSaveFileNotify(Msg, TEXT(""));
+			return false;
 		}
         FString ClassName = Class->GetName();
         FString OuterPath = Class->GetPathName();
