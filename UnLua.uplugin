@@ -38,6 +38,11 @@
       "LoadingPhase": "PostConfigInit"
     },
     {
+      "Name": "LuaLibFeature",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
       "Name": "LibLuasocket",
       "Type": "Runtime",
       "LoadingPhase": "Default"
@@ -59,6 +64,11 @@
     },
     {
       "Name": "LibLuacrypt",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LuaProtobuf",
       "Type": "Runtime",
       "LoadingPhase": "Default"
     }

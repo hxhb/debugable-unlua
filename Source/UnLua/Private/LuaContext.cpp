@@ -33,13 +33,7 @@
 #include "GameDelegates.h"
 #endif
 
-#if SUPPORTS_LUASOCKET
-#include "LibLuasocket.h"
-#endif
-
-#if SUPPORTS_LUAPANDA
-#include "LuaPanda.h"
-#endif
+#include "LuaLibFeature.h"
 
 #if UE_BUILD_TEST
 #include "Tests/UnLuaPerformanceTestProxy.h"
@@ -175,26 +169,20 @@ void FLuaContext::CreateState()
         check(L);
         luaL_openlibs(L);                                           // open all standard Lua libraries
 
-#if SUPPORTS_LUASOCKET
-		// Luasocket and luapanda
-		if (FLibLuasocketModule::IsAvailable())
-		{
-			FLibLuasocketModule::Get().SetupLuasocket(L);
-			lua_pushboolean(L, true);
-			lua_setglobal(L, "WITH_LUASOCKET");
+        FString EnabledLibString = ANSI_TO_TCHAR(LUA_LIBS);
+        TArray<FString> EnabledLuaLibs;
+        EnabledLibString.ParseIntoArray(EnabledLuaLibs,TEXT(";"),true);
 
-			UE_LOG(LogUnLua, Display, TEXT("Lua state setup with Luasocket."));
-#if SUPPORTS_LUAPANDA
-			if (UE_BUILD_SHIPPING == 0 && FLuaPanda::IsAvailable())
-			{
-				FLuaPanda::Get().SetupLuaPanda(L);
-				lua_pushboolean(L, true);
-				lua_setglobal(L, "WITH_LUA_DEBUG");
-				UE_LOG(LogUnLua, Display, TEXT("Lua state setup with LuaPanda."));
-			}
-#endif
-		}
-#endif
+        for (const auto& Lib:EnabledLuaLibs)
+        {
+            // UE_LOG(LogTemp,Log,TEXT("Enabled LuaLib:%s"),*Lib);
+            FLuaLibFeature& CurrentLibFeature = FModuleManager::LoadModuleChecked<FLuaLibFeature>(FName(*Lib));
+            CurrentLibFeature.RegisterLuaLib(L);
+            lua_pushboolean(L, true);
+            lua_setglobal(L, TCHAR_TO_ANSI(*CurrentLibFeature.GetLuaMacro()));
+            UE_LOG(LogUnLua, Display, TEXT("Lua state setup with %s."),*CurrentLibFeature.GetLuaMacro());
+        }
+        
 		lua_pushboolean(L, !!UE_BUILD_SHIPPING);
 		lua_setglobal(L, "BUILD_SHIPPING");
 

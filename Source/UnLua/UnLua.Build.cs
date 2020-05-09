@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 
 using System.IO;
+using System;
+using System.Collections.Generic;
 using UnrealBuildTool;
+
 
 public class UnLua : ModuleRules
 {
@@ -40,6 +43,7 @@ public class UnLua : ModuleRules
             new string[] {
                 "ApplicationCore",
                 "Lua",
+                "LuaLibFeature"
             }
         );
 
@@ -80,20 +84,24 @@ public class UnLua : ModuleRules
         {
             PublicDefinitions.Add("SUPPORTS_RPC_CALL=1");
         }
+        
+        string[] EnableLibs= {
+            "LibLuasocket",
+            "LuaPanda",
+            "LuaProtobuf"
+        };
 
-        bool bSupportLuasocket = true;
-        if (bSupportLuasocket)
+        string EnabledLuaLibMacro = "LUA_LIBS=\"";
+        foreach (var Lib in EnableLibs)
         {
-            PublicDependencyModuleNames.Add("LibLuasocket");
-            PublicDefinitions.Add("SUPPORTS_LUASOCKET=1");
+            DynamicallyLoadedModuleNames.Add(Lib);
+            EnabledLuaLibMacro += Lib + ";";
         }
 
-        bool bSupportLuaPanda = bSupportLuasocket && true;
-        if (bSupportLuaPanda)
-        {
-            PublicDependencyModuleNames.Add("LuaPanda");
-            PublicDefinitions.Add("SUPPORTS_LUAPANDA=1");
-        }
+        EnabledLuaLibMacro += "\"";
+        
+        PublicDefinitions.Add(EnabledLuaLibMacro);
+
         OptimizeCode = CodeOptimization.InShippingBuildsOnly;
     }
 }

@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LuaLibFeature.h"
 #include "Modules/ModuleManager.h"
 
 struct lua_State;
 
-class LIBLPEG_API FLibLpegModule : public IModuleInterface
+class LIBLPEG_API FLibLpegModule : public FLuaLibFeature
 {
 public:
 
@@ -27,6 +28,10 @@ public:
 		return FModuleManager::Get().IsModuleLoaded("LibLpeg");
 	}
 
+	virtual void RegisterLuaLib(lua_State* L);
+	virtual void UnRegisterLuaLib(lua_State* L);
+	virtual FName GetLibName()const;
+	
 protected:
 
 };

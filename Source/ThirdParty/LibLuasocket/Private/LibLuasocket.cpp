@@ -13,12 +13,26 @@ IMPLEMENT_MODULE(FLibLuasocketModule, LibLuasocket);
 
 void FLibLuasocketModule::StartupModule()
 {
-
+	IModularFeatures::Get().RegisterModularFeature(LUA_LIB_FEATURE_NAME, this);
+	
 }
 
 void FLibLuasocketModule::ShutdownModule()
 {
+	IModularFeatures::Get().UnregisterModularFeature(LUA_LIB_FEATURE_NAME, this);
+}
 
+void FLibLuasocketModule::RegisterLuaLib(lua_State* L)
+{
+	FLibLuasocketModule::SetupLuasocket(L);
+}
+void FLibLuasocketModule::UnRegisterLuaLib(lua_State* L)
+{
+	
+}
+FName FLibLuasocketModule::GetLibName()const
+{
+	return TEXT("LibLuasocket");
 }
 
 void FLibLuasocketModule::SetupLuasocket(struct lua_State* L)

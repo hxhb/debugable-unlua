@@ -18,20 +18,29 @@ IMPLEMENT_MODULE(FLibLpegModule, LibLpeg);
 
 void FLibLpegModule::StartupModule()
 {
-
+	IModularFeatures::Get().RegisterModularFeature(LUA_LIB_FEATURE_NAME, this);
 }
 
 void FLibLpegModule::ShutdownModule()
 {
-
+	IModularFeatures::Get().UnregisterModularFeature(LUA_LIB_FEATURE_NAME, this);
 }
 
 void FLibLpegModule::SetupLibLpeg(lua_State* L)
 {
-	//luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
-	//	 
-	//lua_pushcfunction(L, luaopen_lpeg);
-	//lua_setfield(L, -2, "lpeg");
 	luaL_requiref(L, "lpeg", luaopen_lpeg , 1);
 }
 
+
+void FLibLpegModule::RegisterLuaLib(lua_State* L)
+{
+	luaL_requiref(L, "lpeg", luaopen_lpeg , 1);
+}
+void FLibLpegModule::UnRegisterLuaLib(lua_State* L)
+{
+	
+}
+FName FLibLpegModule::GetLibName()const
+{
+	return TEXT("LibLpeg");
+}

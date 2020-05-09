@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class LibSproto : ModuleRules
+public class LuaProtobuf : ModuleRules
 {
-	public LibSproto(ReadOnlyTargetRules Target) : base(Target)
+	public LuaProtobuf(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -15,6 +15,5 @@ public class LibSproto : ModuleRules
 		bEnableShadowVariableWarnings = false;
 		bEnableUndefinedIdentifierWarnings = false;
 
-		PublicDefinitions.Add("WITH_LIBSPROTO=1");
 	}
 }

@@ -8,7 +8,7 @@ public class LibLuacrypt : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core" ,"LuaLibFeature"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Lua" });
 

@@ -10,12 +10,13 @@ IMPLEMENT_MODULE(FLuaPanda, LuaPanda);
 
 void FLuaPanda::StartupModule()
 {
-
+	IModularFeatures::Get().RegisterModularFeature(LUA_LIB_FEATURE_NAME, this);
+	
 }
 
 void FLuaPanda::ShutdownModule()
 {
-
+	IModularFeatures::Get().UnregisterModularFeature(LUA_LIB_FEATURE_NAME, this);
 }
 
 void FLuaPanda::SetupLuaPanda(struct lua_State* L)
@@ -34,9 +35,21 @@ void FLuaPanda::SetupLuaPanda(struct lua_State* L)
 int FLuaPanda::OpenLuaPanda(lua_State* L)
 {
 
-	UE_LOG(LogTemp, Log, TEXT("Call open lua panda"));
+	// UE_LOG(LogTemp, Log, TEXT("Call open lua panda"));
 	luaL_dostring(L, (const char*)LuaPanda_lua_data);
 
 	return 1;
 }
 
+void FLuaPanda::RegisterLuaLib(lua_State* L)
+{
+	FLuaPanda::SetupLuaPanda(L);
+}
+void FLuaPanda::UnRegisterLuaLib(lua_State* L)
+{
+	
+}
+FName FLuaPanda::GetLibName()const
+{
+	return TEXT("LuaPanda");
+}

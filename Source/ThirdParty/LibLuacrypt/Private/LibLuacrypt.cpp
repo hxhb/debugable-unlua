@@ -13,12 +13,13 @@ IMPLEMENT_MODULE(FLibLuacryptModule, LibLuacrypt);
 
 void FLibLuacryptModule::StartupModule()
 {
-
+	IModularFeatures::Get().RegisterModularFeature(LUA_LIB_FEATURE_NAME, this);
+	
 }
 
 void FLibLuacryptModule::ShutdownModule()
 {
-
+	IModularFeatures::Get().UnregisterModularFeature(LUA_LIB_FEATURE_NAME, this);
 }
 
 void FLibLuacryptModule::SetupLuacrypt(lua_State* L)
@@ -29,3 +30,19 @@ void FLibLuacryptModule::SetupLuacrypt(lua_State* L)
 	lua_setfield(L, -2, "crypt");
 }
 
+
+void FLibLuacryptModule::RegisterLuaLib(lua_State* L)
+{
+	luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
+		 
+	lua_pushcfunction(L, luaopen_crypt);
+	lua_setfield(L, -2, "crypt");
+}
+void FLibLuacryptModule::UnRegisterLuaLib(lua_State* L)
+{
+	
+}
+FName FLibLuacryptModule::GetLibName()const
+{
+	return TEXT("LibLuacrypt");
+}
