@@ -170,17 +170,27 @@ void FLuaContext::CreateState()
         luaL_openlibs(L);                                           // open all standard Lua libraries
 
         FString EnabledLibString = ANSI_TO_TCHAR(LUA_LIBS);
-        TArray<FString> EnabledLuaLibs;
-        EnabledLibString.ParseIntoArray(EnabledLuaLibs,TEXT(";"),true);
+        TArray<FString> EnabledLuaLibModules;
+        EnabledLibString.ParseIntoArray(EnabledLuaLibModules,TEXT(";"),true);
 
-        for (const auto& Lib:EnabledLuaLibs)
+        for (const auto& LibModule:EnabledLuaLibModules)
         {
-            // UE_LOG(LogTemp,Log,TEXT("Enabled LuaLib:%s"),*Lib);
-            FLuaLibFeature& CurrentLibFeature = FModuleManager::LoadModuleChecked<FLuaLibFeature>(FName(*Lib));
-            CurrentLibFeature.RegisterLuaLib(L);
-            lua_pushboolean(L, true);
-            lua_setglobal(L, TCHAR_TO_ANSI(*CurrentLibFeature.GetLuaMacro()));
-            UE_LOG(LogUnLua, Display, TEXT("Lua state setup with %s."),*CurrentLibFeature.GetLuaMacro());
+            FLuaLibFeature& CurrentLibFeature = FModuleManager::LoadModuleChecked<FLuaLibFeature>(FName(*LibModule));
+        }
+
+        TArray<ILuaLibInterface*> LuaLibFeatures = IModularFeatures::Get().GetModularFeatureImplementations<ILuaLibInterface>(LUA_LIB_FEATURE_NAME);
+        
+        for(const auto& Feature:LuaLibFeatures)
+        {
+#if !ENABLE_ALL_REGISTED_LUA_LIB
+            if(EnabledLuaLibModules.Contains(Feature->GetLibName().ToString()))
+#endif
+            {
+                Feature->RegisterLuaLib(L);
+                lua_pushboolean(L, true);
+                lua_setglobal(L, TCHAR_TO_ANSI(*Feature->GetLuaMacro()));
+                UE_LOG(LogUnLua, Display, TEXT("setup lua lib: %s."),*Feature->GetLuaMacro());
+            }
         }
         
 		lua_pushboolean(L, !!UE_BUILD_SHIPPING);

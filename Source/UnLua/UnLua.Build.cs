@@ -84,24 +84,29 @@ public class UnLua : ModuleRules
         {
             PublicDefinitions.Add("SUPPORTS_RPC_CALL=1");
         }
-        
+
         string[] EnableLibs= {
             "LibLuasocket",
             "LuaPanda",
             "LuaProtobuf"
         };
-
-        string EnabledLuaLibMacro = "LUA_LIBS=\"";
-        foreach (var Lib in EnableLibs)
+        // combine all enabled libs as LUA_LIBS macro
         {
-            DynamicallyLoadedModuleNames.Add(Lib);
-            EnabledLuaLibMacro += Lib + ";";
+            string EnabledLuaLibMacro = "LUA_LIBS=\"";
+            foreach (var Lib in EnableLibs)
+            {
+                DynamicallyLoadedModuleNames.Add(Lib);
+                EnabledLuaLibMacro += Lib + ";";
+            }
+
+            EnabledLuaLibMacro += "\"";
+        
+            PublicDefinitions.Add(EnabledLuaLibMacro);
         }
 
-        EnabledLuaLibMacro += "\"";
-        
-        PublicDefinitions.Add(EnabledLuaLibMacro);
-
+        bool EnableAllRegistedLuaLibs = false;
+        string EnableAllRegistedLualibsMacrro = "ENABLE_ALL_REGISTED_LUA_LIB=" + (EnableAllRegistedLuaLibs ? "1" : "0");
+        PublicDefinitions.Add(EnableAllRegistedLualibsMacrro);
         OptimizeCode = CodeOptimization.InShippingBuildsOnly;
     }
 }
