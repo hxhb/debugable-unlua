@@ -7,6 +7,9 @@
 - 源码集成`Lpeg`
 - 源码集成`Sproto`
 - 源码集成`Luacrypt`
+- 源码集成[lua-protobuf#392ace3](https://github.com/starwing/lua-protobuf/commit/392ace3abd4a46e5c386e52d2d16c9aade52e46d)
+- 集成`serpent`
+- 统一了unlua加载C Lua模块的方式，只需要继承`FLuaLibFeature`按照接口实现即可。
 - 增加编辑器生成lua文件的提示、检测蓝图有没有继承`UnLuaInterface`接口。
 
 ## LuaPanda调试
