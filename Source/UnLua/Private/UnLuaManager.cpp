@@ -19,7 +19,6 @@
 #include "LuaContext.h"
 #include "LuaFunctionInjection.h"
 #include "DelegateHelper.h"
-#include "UEReflectionUtils.h"
 #include "UEObjectReferencer.h"
 #include "GameFramework/InputSettings.h"
 #include "Components/InputComponent.h"
@@ -469,15 +468,15 @@ bool UUnLuaManager::ReplaceInputs(AActor *Actor, UInputComponent *InputComponent
 
     UClass *Class = Actor->GetClass();
     FString *ModuleNamePtr = ModuleNames.Find(Class);
-	if (!ModuleNamePtr)
-	{
-		UClass **SuperClassPtr = Derived2BaseClasses.Find(Class);
-		if (!SuperClassPtr || !(*SuperClassPtr))
-		{
-			return false;
-		}
-		ModuleNamePtr = ModuleNames.Find(*SuperClassPtr);
-	}
+    if (!ModuleNamePtr)
+    {
+        UClass **SuperClassPtr = Derived2BaseClasses.Find(Class);
+        if (!SuperClassPtr || !(*SuperClassPtr))
+        {
+            return false;
+        }
+        ModuleNamePtr = ModuleNames.Find(*SuperClassPtr);
+    }
     check(ModuleNamePtr);
     TSet<FName> *LuaFunctionsPtr = ModuleFunctions.Find(*ModuleNamePtr);
     check(LuaFunctionsPtr);
@@ -738,6 +737,16 @@ void UUnLuaManager::OverrideFunction(UFunction *TemplateFunction, UClass *OuterC
 {
     if (TemplateFunction->GetOuter() != OuterClass)
     {
+#if UE_BUILD_SHIPPING || UE_BUILD_TEST
+        if (TemplateFunction->Script.Num() > 0 && TemplateFunction->Script[0] == EX_CallLua)
+        {
+#if ENABLE_CALL_OVERRIDDEN_FUNCTION
+            TemplateFunction = GReflectionRegistry.FindOverriddenFunction(TemplateFunction);
+#else
+            TemplateFunction = New2TemplateFunctions.FindChecked(TemplateFunction);
+#endif
+        }
+#endif
         AddFunction(TemplateFunction, OuterClass, NewFuncName);     // add a duplicated UFunction to child UClass
     }
     else
@@ -770,6 +779,8 @@ void UUnLuaManager::AddFunction(UFunction *TemplateFunction, UClass *OuterClass,
         DuplicatedFuncs.AddUnique(NewFunc);
 #if ENABLE_CALL_OVERRIDDEN_FUNCTION
         GReflectionRegistry.AddOverriddenFunction(NewFunc, TemplateFunction);
+#else
+        New2TemplateFunctions.Add(NewFunc, TemplateFunction);
 #endif
     }
 }
@@ -784,11 +795,11 @@ void UUnLuaManager::ReplaceFunction(UFunction *TemplateFunction, UClass *OuterCl
     {
 #if ENABLE_CALL_OVERRIDDEN_FUNCTION
         FName NewFuncName(*FString::Printf(TEXT("%s%s"), *TemplateFunction->GetName(), TEXT("Copy")));
-		if (TemplateFunction->HasAnyFunctionFlags(FUNC_Native))
-		{
-			// call this before duplicate UFunction that has FUNC_Native to eliminate "Failed to bind native function" warnings.
-			OuterClass->AddNativeFunction(*NewFuncName.ToString(), TemplateFunction->GetNativeFunc());
-		}
+        if (TemplateFunction->HasAnyFunctionFlags(FUNC_Native))
+        {
+            // call this before duplicate UFunction that has FUNC_Native to eliminate "Failed to bind native function" warnings.
+            OuterClass->AddNativeFunction(*NewFuncName.ToString(), TemplateFunction->GetNativeFunc());
+        }
         UFunction *NewFunc = DuplicateUFunction(TemplateFunction, OuterClass, NewFuncName);
         GReflectionRegistry.AddOverriddenFunction(TemplateFunction, NewFunc);
 #endif

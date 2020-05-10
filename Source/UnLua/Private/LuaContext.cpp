@@ -21,11 +21,11 @@
 #include "UnLuaDelegates.h"
 #include "UnLuaDebugBase.h"
 #include "UEObjectReferencer.h"
-#include "UEReflectionUtils.h"
 #include "CollisionHelper.h"
 #include "DelegateHelper.h"
-#include "PropertyCreator.h"
+#include "ReflectionUtils/PropertyCreator.h"
 #include "DefaultParamCollection.h"
+#include "ReflectionUtils/ReflectionRegistry.h"
 #include "Interfaces/IPluginManager.h"
 
 #if WITH_EDITOR
@@ -472,7 +472,7 @@ bool FLuaContext::TryToBindLua(UObjectBaseUtility *Object)
 /**
  * Callback for FWorldDelegates::OnWorldTickStart
  */
-#if ENGINE_MINOR_VERSION > 23	
+#if ENGINE_MINOR_VERSION > 23
 void FLuaContext::OnWorldTickStart(UWorld *World, ELevelTick TickType, float DeltaTime)
 #else
 void FLuaContext::OnWorldTickStart(ELevelTick TickType, float DeltaTime)
@@ -508,15 +508,23 @@ void FLuaContext::OnWorldCleanup(UWorld *World, bool bSessionEnded, bool bCleanu
         return;
     }
 
+#if WITH_EDITOR
+    UGameInstance *OwningGameInstance = World->GetGameInstance();
+    if (OwningGameInstance && OwningGameInstance->GetWorldContext() && OwningGameInstance->GetWorldContext()->PendingNetGame)
+    {
+        return;
+    }
+#endif
+
     World->RemoveOnActorSpawnedHandler(OnActorSpawnedHandle);
 
     if (World->PersistentLevel && World->PersistentLevel->OwningWorld == World)
     {
         bIsInSeamlessTravel = World->IsInSeamlessTravel();
     }
-#if ENGINE_MINOR_VERSION > 23	
-    Cleanup(IsEngineExitRequested(), World);                    // clean up	
-#else	
+#if ENGINE_MINOR_VERSION > 23
+    Cleanup(IsEngineExitRequested(), World);                    // clean up
+#else
     Cleanup(GIsRequestingExit, World);                          // clean up
 #endif
 
@@ -538,6 +546,14 @@ void FLuaContext::OnPostWorldCleanup(UWorld *World, bool bSessionEnded, bool bCl
     {
         return;
     }
+
+#if WITH_EDITOR
+    UGameInstance *OwningGameInstance = World->GetGameInstance();
+    if (OwningGameInstance && OwningGameInstance->GetWorldContext() && OwningGameInstance->GetWorldContext()->PendingNetGame)
+    {
+        return;
+    }
+#endif
 
     if (NextMap.Len() > 0)
     {

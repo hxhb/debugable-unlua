@@ -16,9 +16,9 @@
 #include "UnLuaManager.h"
 #include "LuaContext.h"
 #include "LuaCore.h"
-#include "UEReflectionUtils.h"
-#include "UEObjectReferencer.h"
 #include "DelegateHelper.h"
+#include "UEObjectReferencer.h"
+#include "ReflectionUtils/ReflectionRegistry.h"
 
 /**
  * Load an object. for example: UObject.Load("/Game/Core/Blueprints/AI/BehaviorTree_Enemy.BehaviorTree_Enemy")
@@ -61,6 +61,8 @@ int32 UObject_Load(lua_State *L)
         if (Enum)
         {
             RegisterEnum(L, Enum);
+            int32 Type = luaL_getmetatable(L, TCHAR_TO_ANSI(*Enum->GetName()));
+            check(Type == LUA_TTABLE);
         }
         else
         {
