@@ -1,6 +1,6 @@
 ## What is this?
 [UnLua](https://github.com/Tencent/UnLua/)是Tencent开源的一个在UE中集成Lua的插件。
-本仓库在其基础上修改(基础版本为[5d3a5ff](https://github.com/Tencent/UnLua/commit/5d3a5ff97e927dc266c33810d8a4fee30b6b716e)：
+本仓库在其基础上修改(基础版本为[8c25bc0](https://github.com/Tencent/UnLua/commit/8c25bc0defc14b759572273b0f70e786bd33838c)：
 
 - 源码集成`Luasocket`
 - 源码集成`LuaPanda 3.1.0`
