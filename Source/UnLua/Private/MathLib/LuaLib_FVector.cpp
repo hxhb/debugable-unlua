@@ -24,7 +24,7 @@ static int32 FVector_New(lua_State *L)
     return 1;
 }
 
-static int32 FVector_Set(lua_State *L)
+static int32 FVector_SetXYZ(lua_State *L)
 {
     int32 NumParams = lua_gettop(L);
     if (NumParams < 1)
@@ -44,6 +44,30 @@ static int32 FVector_Set(lua_State *L)
     return 0;
 }
 
+
+static int32 FVector_Set(lua_State *L)
+{
+	int32 NumParams = lua_gettop(L);
+	if (NumParams < 1)
+	{
+		UE_LOG(LogUnLua, Log, TEXT("%s: Invalid parameters!"), ANSI_TO_TCHAR(__FUNCTION__));
+		return 0;
+	}
+
+	FVector *Src = (FVector*)GetCppInstanceFast(L, 1);
+	if (!Src)
+	{
+		UE_LOG(LogUnLua, Log, TEXT("%s: Invalid FVector!"), ANSI_TO_TCHAR(__FUNCTION__));
+		return 0;
+	}
+
+	FVector *Target = (FVector*)GetCppInstanceFast(L, 2);
+
+	if(Target)
+		*Src = *Target;
+
+	return 0;
+}
 static int32 FVector_Normalize(lua_State *L)
 {
     int32 NumParams = lua_gettop(L);
@@ -80,7 +104,8 @@ static int32 FVector_UNM(lua_State *L)
 
 static const luaL_Reg FVectorLib[] =
 {
-    { "Set", FVector_Set },
+    { "SetXYZ", FVector_SetXYZ },
+	{ "Set", FVector_Set },
     { "Normalize", FVector_Normalize },
     { "Add", UnLua::TMathCalculation<FVector, UnLua::TAdd<float>, true>::Calculate },
     { "Sub", UnLua::TMathCalculation<FVector, UnLua::TSub<float>, true>::Calculate },
