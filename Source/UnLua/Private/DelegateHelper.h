@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "CoreUObject.h"
 #include "UnLuaCompatibility.h"
 
@@ -55,13 +54,13 @@ struct FSignatureDesc
 
     void MarkForDelete(bool bIgnoreBindings = false);
 
-    void Execute(FFrame &Stack, void *RetValueAddress);
+    void Execute(UObject *Context, FFrame &Stack, void *RetValueAddress);
 
     class FFunctionDesc *SignatureFunctionDesc;
     int32 CallbackRef;
     int16 NumCalls;
-    int8 NumBindings;
-    bool bPendingKill;
+    uint16 NumBindings : 15;
+    uint16 bPendingKill : 1;
 };
 
 struct lua_State;
