@@ -64,7 +64,7 @@ static int32 FVector4_Set(lua_State *L)
 
 	if (Target)
 	{
-		*V = *Target;
+		V->Set(Target->X, Target->Y, Target->Z, Target->W);
 	}
 	return 0;
 }

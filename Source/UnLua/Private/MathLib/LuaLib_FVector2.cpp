@@ -61,7 +61,7 @@ static int32 FVector2D_Set(lua_State *L)
 	FVector2D *Target = (FVector2D*)GetCppInstanceFast(L, 2);
 	if (Target)
 	{
-		*V = *Target;
+		V->Set(Target->X, Target->Y);
 	}
 	return 0;
 }
