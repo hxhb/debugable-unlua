@@ -12,7 +12,7 @@
 #include "pb.h"
 
 #include "Misc/FileHelper.h"
-
+#include <cstring>
 PB_NS_BEGIN
 
 
