@@ -1222,7 +1222,8 @@ PB_API pb_Type *pb_newtype(pb_State *S, pb_Name *tname) {
     te = (pb_TypeEntry*)pb_settable(&S->types, (pb_Key)tname);
     if (te == NULL) return NULL;
     if ((t = te->value) != NULL) { t->is_dead = 0; return t; }
-    if (!(t = (pb_Type*)pb_poolalloc(&S->typepool))) return NULL;
+	t = (pb_Type*)pb_poolalloc(&S->typepool);
+    if (!t) return NULL;
     pbT_inittype(t);
     t->name = tname;
     t->basename = pbT_basename((const char*)tname);
@@ -1267,7 +1268,8 @@ PB_API pb_Field *pb_newfield(pb_State *S, pb_Type *t, pb_Name *fname, int32_t nu
         f->default_value = NULL;
         return f;
     }
-    if (!(f = (pb_Field*)pb_poolalloc(&S->fieldpool))) return NULL;
+	f = (pb_Field*)pb_poolalloc(&S->fieldpool);
+    if (!f) return NULL;
     memset(f, 0, sizeof(pb_Field));
     f->name   = fname;
     f->type   = t;
