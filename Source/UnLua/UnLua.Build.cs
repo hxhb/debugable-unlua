@@ -92,15 +92,15 @@ public class UnLua : ModuleRules
         };
         // combine all enabled libs as LUA_LIBS macro
         {
-            string EnabledLuaLibMacro = "LUA_LIBS=\"";
+            string EnabledLuaLibMacro = "LUA_LIBS=TEXT(\"";
             foreach (var Lib in EnableLibs)
             {
                 DynamicallyLoadedModuleNames.Add(Lib);
                 EnabledLuaLibMacro += Lib + ";";
             }
 
-            EnabledLuaLibMacro += "\"";
-        
+            EnabledLuaLibMacro += "\")";
+
             PublicDefinitions.Add(EnabledLuaLibMacro);
         }
 

@@ -169,7 +169,7 @@ void FLuaContext::CreateState()
         check(L);
         luaL_openlibs(L);                                           // open all standard Lua libraries
 
-        FString EnabledLibString = ANSI_TO_TCHAR(LUA_LIBS);
+        FString EnabledLibString = LUA_LIBS;
         TArray<FString> EnabledLuaLibModules;
         EnabledLibString.ParseIntoArray(EnabledLuaLibModules,TEXT(";"),true);
 
