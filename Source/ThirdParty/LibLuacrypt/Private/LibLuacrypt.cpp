@@ -5,10 +5,6 @@
 #include "lsha1.c"
 #include "lua-crypt.c"
 
-extern "C" {
-
-}
-
 IMPLEMENT_MODULE(FLibLuacryptModule, LibLuacrypt);
 
 void FLibLuacryptModule::StartupModule()

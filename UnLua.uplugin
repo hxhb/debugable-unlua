@@ -71,6 +71,11 @@
       "Name": "LuaProtobuf",
       "Type": "Runtime",
       "LoadingPhase": "Default"
+    },
+    {
+      "Name": "LibFmt",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
     }
   ]
 }

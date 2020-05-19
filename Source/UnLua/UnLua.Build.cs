@@ -88,7 +88,8 @@ public class UnLua : ModuleRules
         string[] EnableLibs= {
             "LibLuasocket",
             "LuaPanda",
-            "LuaProtobuf"
+            "LuaProtobuf",
+            "LibFmt"
         };
         // combine all enabled libs as LUA_LIBS macro
         {
