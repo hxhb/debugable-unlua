@@ -39,9 +39,21 @@ static int32 FPaths_Combine(lua_State *L)
 	return 1;
 }
 
+static int32 FPaths_ProjectScriptDir(lua_State *L)
+{
+	int32 NumParams = lua_gettop(L);
+	FString Result = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("Script"));
+
+	FTCHARToUTF8 UTF8CHAR_Ins(*Result);
+	lua_pushlstring(L, (ANSICHAR*)(UTF8CHAR_Ins.Get()), UTF8CHAR_Ins.Length());
+	return 1;
+}
+
+
 static const luaL_Reg FPathsLib[] =
 {
 	{ "Combine", FPaths_Combine },
+	{ "ProjectScriptDir",FPaths_ProjectScriptDir},
 	{ nullptr, nullptr }
 };
 

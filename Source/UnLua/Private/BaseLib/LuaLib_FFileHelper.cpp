@@ -19,6 +19,8 @@
 #include "LuaCore.h"
 #include "LuaDynamicBinding.h"
 
+
+
 static int32 FFileHelper_LoadFileToArray(lua_State *L)
 {
 	bool bStatus = false;
@@ -89,28 +91,34 @@ static int32 FFileHelper_LoadFileToString(lua_State *L)
 }
 
 /*
-	@Param1 -- filename
-	@Param2 -- data
+	@Param1 -- data
+	@Param2 -- filename
 	@Param3 -- WriteMode(Append?)
 */
 static int32 FFileHelper_SaveArrayToFile(lua_State *L)
 {
 	int32 NumParams = lua_gettop(L);
 
-	if (NumParams != 3)
+	bool bAppend = false;
+	if (NumParams < 2)
 	{
 		UNLUA_LOGERROR(L, LogUnLua, Log, TEXT("%s: Invalid parameters!"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 	else
 	{
-		FString FileName = luaL_tolstring(L, 1, nullptr);
 		size_t size = 0;
-		uint8* data = (uint8*)lua_tolstring(L, 2, &size);
-		bool IsAppend = lua_toboolean(L, 3);
+		uint8* data = (uint8*)lua_tolstring(L, 1, &size);
+		FString FileName = luaL_tolstring(L, 2, nullptr);
+
+		if (NumParams == 3)
+		{
+			bAppend = lua_toboolean(L, 3);
+		}
+		
 
 		if (!FileName.IsEmpty() && data)
 		{
-			uint32 Flags = EFileWrite::FILEWRITE_AllowRead | EFileWrite::FILEWRITE_EvenIfReadOnly | (IsAppend ? EFileWrite::FILEWRITE_Append : 0);
+			uint32 Flags = EFileWrite::FILEWRITE_AllowRead | EFileWrite::FILEWRITE_EvenIfReadOnly | (bAppend ? EFileWrite::FILEWRITE_Append : 0);
 			bool bSaveStatus = FFileHelper::SaveArrayToFile(TArrayView<const uint8>(data, size), *FileName, &IFileManager::Get(), Flags);
 			lua_pushboolean(L, bSaveStatus);
 		}
@@ -120,7 +128,6 @@ static int32 FFileHelper_SaveArrayToFile(lua_State *L)
 
 static int32 FFileHelper_SaveStringToFile(lua_State *L)
 {
-
 	return FFileHelper_SaveArrayToFile(L);
 }
 
