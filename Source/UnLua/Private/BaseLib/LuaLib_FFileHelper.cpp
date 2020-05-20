@@ -76,7 +76,8 @@ static int32 FFileHelper_LoadFileToString(lua_State *L)
 				FString result;
 				if (FFileHelper::LoadFileToString(result, *FileName))
 				{
-					lua_pushlstring(L, TCHAR_TO_ANSI(*result), result.Len());
+					FTCHARToUTF8 UTF8CHAR_Ins(*result);
+					lua_pushlstring(L, (ANSICHAR*)(UTF8CHAR_Ins.Get()), UTF8CHAR_Ins.Length());
 					bStatus = true;
 				}
 			}
