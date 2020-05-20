@@ -28,6 +28,8 @@ public:
     void RegisterDelegates();
 
     void CreateState();
+	FORCEINLINE lua_State* GetState()const { return L; }
+
     void SetEnable(bool InEnable);
     bool IsEnable() const;
 

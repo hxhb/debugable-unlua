@@ -1246,7 +1246,7 @@ static int Lpb_loadufsfile(lua_State *L) {
 				if (d == NULL) { return luaL_error(L, "out of memory"); }
 
 				// size = fread(d, 1, BUFSIZ, fp);
-				size = readfile.Num() > BUFSIZ ? BUFSIZ : readfile.Num();
+				size = readfile.Num()-readed_len > BUFSIZ ? BUFSIZ : readfile.Num()-readed_len;
 				std::memcpy(d, readfile.GetData() + readed_len, size);
 				readed_len += size;
 				pb_addsize(&b, size);
