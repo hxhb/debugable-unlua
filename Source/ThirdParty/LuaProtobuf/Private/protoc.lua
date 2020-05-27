@@ -11,7 +11,6 @@ local tostring = tostring
 local type = type
 local insert_tab = table.insert
 
-require "Unlua"
 require "fmt"
 
 local function meta(name, t)
@@ -491,7 +490,7 @@ function toplevel:import(lex, info)
    end
    local name = lex:quote()
    lex:line_end()
-   --change imporpt file path to UFS
+   --imporpt 路径改为绝对路径
    local path
    local filename
    local extension
