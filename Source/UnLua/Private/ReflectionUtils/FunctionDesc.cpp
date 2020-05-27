@@ -413,7 +413,9 @@ int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamInd
         FPropertyDesc *Property = Properties[Index];
         if (Index >= NumParams || !Property->CopyBack(L, Params, FirstParamIndex + Index))
         {
-            Property->GetValue(L, Params, true);
+			FProperty* RealPropertyIns= Property->GetProperty();
+			bool isRef = RealPropertyIns->HasAnyPropertyFlags(CPF_InstancedReference|CPF_ReferenceParm);
+            Property->GetValue(L, Params, !isRef);
             ++NumReturnValues;
         }
     }
@@ -430,7 +432,9 @@ int32 FFunctionDesc::PostCall(lua_State *L, int32 NumParams, int32 FirstParamInd
         }
         else
         {
-            Property->GetValue(L, Params, true);
+			FProperty* RealPropertyIns = Property->GetProperty();
+			bool isRef = RealPropertyIns->HasAnyPropertyFlags(CPF_InstancedReference | CPF_ReferenceParm);
+            Property->GetValue(L, Params, !isRef);
         }
         ++NumReturnValues;
     }
