@@ -11,6 +11,9 @@ local tostring = tostring
 local type = type
 local insert_tab = table.insert
 
+require "Unlua"
+require "fmt"
+
 local function meta(name, t)
    t = t or {}
    t.__name  = name
@@ -310,13 +313,12 @@ function Parser:parsefile(name)
    local info = self.loaded[name]
    if info then return info end
    local errors = {}
+
    for _, path in ipairs(self.paths) do
       local fn = path ~= "" and path.."/"..name or name
-      local fh, err = io.open(fn)
-      if fh then
-         local content = fh:read "*a"
-         info = self:parse(content, name)
-         fh:close()
+      local str_proto = UE4.FFileHelper.LoadFileToArray(name)
+      if str_proto then
+         info = self:parse(str_proto, name)
          return info
       end
       insert_tab(errors, err or fn..": ".."unknown error")
@@ -489,7 +491,14 @@ function toplevel:import(lex, info)
    end
    local name = lex:quote()
    lex:line_end()
-   local result = self:parsefile(name)
+   --change imporpt file path to UFS
+   local path
+   local filename
+   local extension
+   path,filename,extension=UE4.FPaths.Split(lex.name,path,filename,extension)
+   local importname=(fmt("{path}/{file}",{path=path,file=name}))
+ 
+   local result = self:parsefile(importname)
    if self.on_import then
       self.on_import(result)
    end
