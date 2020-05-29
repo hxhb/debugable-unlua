@@ -259,8 +259,16 @@ void FLuaContext::CreateState()
 #endif
 
         // add new package path
-        FString LuaSrcPath = GLuaSrcFullPath + TEXT("?.lua");
-        AddPackagePath(L, TCHAR_TO_UTF8(*LuaSrcPath));
+		TArray<FString> AdditionalLuaPackagePaths;
+		AdditionalLuaPackagePaths.Add(GLuaSrcFullPath);
+		AdditionalLuaPackagePaths.Add(FPaths::Combine(GLuaSrcFullPath, TEXT("CommonLibs")));
+
+		for (const auto& path : AdditionalLuaPackagePaths)
+		{
+			FString luaPath = FPaths::Combine(path, TEXT("?.lua"));
+			UE_LOG(LogTemp, Log, TEXT("AddPackagePath : %s"), *luaPath);
+			AddPackagePath(L, TCHAR_TO_UTF8(*luaPath));
+		}
 
         FUnLuaDelegates::OnPreStaticallyExport.Broadcast();
 
