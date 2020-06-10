@@ -30,8 +30,8 @@ public class UnLua : ModuleRules
             new string[] {
             }
             );
-                
-        
+
+
         PrivateIncludePaths.AddRange(
             new string[] {
                 "UnLua/Private",
@@ -47,6 +47,9 @@ public class UnLua : ModuleRules
             }
         );
 
+        PublicDependencyModuleNames.AddRange(new string[] {
+               "Lua"
+        });
 
         PrivateDependencyModuleNames.AddRange(
             new string[]
@@ -57,7 +60,6 @@ public class UnLua : ModuleRules
                 "Slate",
                 "InputCore",
                 "Projects",
-                "Lua",
             }
             );
         
