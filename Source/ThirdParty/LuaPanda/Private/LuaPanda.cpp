@@ -2,7 +2,7 @@
 
 #include "LuaPanda.h"
 
-#include "lua.hpp"
+#include "clua.h"
 #include "libpdebug.h"
 #include "LuaPanda.inl"
 

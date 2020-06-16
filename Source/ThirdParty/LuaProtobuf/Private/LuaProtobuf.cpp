@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LuaProtobuf.h"
-#include "lua.hpp"
+#include "clua.h"
 #include "pb.h"
 #include "serpent_lua.h"
 #include "protoc_lua.h"

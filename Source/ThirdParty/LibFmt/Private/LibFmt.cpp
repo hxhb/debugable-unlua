@@ -1,5 +1,5 @@
 #include "LibFmt.h"
-#include "lua.hpp"
+#include "clua.h"
 
 IMPLEMENT_MODULE(FLibFmt, LibFmt);
 

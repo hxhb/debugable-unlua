@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LibLpeg.h"
 
-#include "lua.hpp"
+#include "clua.h"
 
 extern "C" {
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LibLuacrypt.h"
 
-#include "lua.hpp"
+#include "clua.h"
 #include "lsha1.c"
 #include "lua-crypt.c"
 

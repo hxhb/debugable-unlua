@@ -2,7 +2,7 @@
 
 #include "LibLuasocket.h"
 
-#include "lua.hpp"
+#include "clua.h"
 
 extern "C" {
 #include "luasocket.h"

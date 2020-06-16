@@ -16,7 +16,7 @@
 
 #include "UnLuaPrivate.h"
 #include "UnLuaCompatibility.h"
-#include "lua.hpp"
+#include "clua.h"
 
 struct FScriptContainerDesc
 {
