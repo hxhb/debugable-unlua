@@ -36,6 +36,7 @@ namespace UnrealBuildTool.Rules
                 new string[] {
                     "UnLuaDefaultParamCollector/Private",
                     "UnLua/Private",
+                    "UnLua/Public",
                 }
                 );
 

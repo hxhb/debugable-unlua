@@ -466,6 +466,12 @@ namespace UnLua
 #define ADD_CONST_FUNCTION_EX(Name, RetType, Function, ...) \
             Class->AddFunction<RetType, ##__VA_ARGS__>(Name, (RetType(ClassType::*)(__VA_ARGS__) const)(&ClassType::Function));
 
+#define ADD_OVERRIDE_FUNCTION_EX(Name, RetType, Function, ...) \
+	{\
+		RetType(ClassType::*FunctionPointer)(__VA_ARGS__) =  &ClassType::Function;\
+		Class->AddFunction<RetType, ##__VA_ARGS__>(Name, FunctionPointer);\
+	}
+
 #define ADD_STATIC_FUNCTION(Function) \
             Class->AddStaticFunction(#Function, &ClassType::Function);
 

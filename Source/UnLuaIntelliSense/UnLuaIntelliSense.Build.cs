@@ -36,6 +36,7 @@ namespace UnrealBuildTool.Rules
                 new string[] {
                     "UnLuaIntelliSense/Private",
                     "UnLua/Private",
+                    "UnLua/Public",
                 }
                 );
 

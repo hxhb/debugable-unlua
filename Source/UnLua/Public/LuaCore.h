@@ -55,8 +55,8 @@ void* GetUserdata(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr, bool 
 void* GetUserdataFast(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr);
 void* NewUserdataWithPadding(lua_State *L, int32 Size, const char *MetatableName, uint8 PaddingSize = 0);
 #define NewTypedUserdata(L, Type) NewUserdataWithPadding(L, sizeof(Type), #Type, CalcUserdataPadding<Type>())
-void* GetCppInstance(lua_State *L, int32 Index);
-void* GetCppInstanceFast(lua_State *L, int32 Index);
+UNLUA_API void* GetCppInstance(lua_State *L, int32 Index);
+UNLUA_API void* GetCppInstanceFast(lua_State *L, int32 Index);
 
 /**
  * Functions to handle script containers
