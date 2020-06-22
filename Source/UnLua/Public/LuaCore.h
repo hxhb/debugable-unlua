@@ -47,13 +47,13 @@ bool TryToSetMetatable(lua_State *L, const char *MetatableName);
 /**
  * Functions to handle Lua userdata
  */
-uint8 CalcUserdataPadding(int32 Alignment);
+UNLUA_API uint8 CalcUserdataPadding(int32 Alignment);
 template <typename T> uint8 CalcUserdataPadding() { return CalcUserdataPadding(alignof(T)); }
-void SetUserdataPadding(lua_State *L, int32 Index, uint8 PaddingBytes);
-void MarkUserdataTwoLvlPtr(lua_State *L, int32 Index);
-void* GetUserdata(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr, bool *OutClassMetatable = nullptr);
-void* GetUserdataFast(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr);
-void* NewUserdataWithPadding(lua_State *L, int32 Size, const char *MetatableName, uint8 PaddingSize = 0);
+UNLUA_API void SetUserdataPadding(lua_State *L, int32 Index, uint8 PaddingBytes);
+UNLUA_API void MarkUserdataTwoLvlPtr(lua_State *L, int32 Index);
+UNLUA_API void* GetUserdata(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr, bool *OutClassMetatable = nullptr);
+UNLUA_API void* GetUserdataFast(lua_State *L, int32 Index, bool *OutTwoLvlPtr = nullptr);
+UNLUA_API void* NewUserdataWithPadding(lua_State *L, int32 Size, const char *MetatableName, uint8 PaddingSize = 0);
 #define NewTypedUserdata(L, Type) NewUserdataWithPadding(L, sizeof(Type), #Type, CalcUserdataPadding<Type>())
 UNLUA_API void* GetCppInstance(lua_State *L, int32 Index);
 UNLUA_API void* GetCppInstanceFast(lua_State *L, int32 Index);
@@ -61,10 +61,10 @@ UNLUA_API void* GetCppInstanceFast(lua_State *L, int32 Index);
 /**
  * Functions to handle script containers
  */
-void* NewScriptContainer(lua_State *L, const FScriptContainerDesc &Desc);
-void* CacheScriptContainer(lua_State *L, void *Key, const FScriptContainerDesc &Desc);
-void* GetScriptContainer(lua_State *L, int32 Index);
-void* GetScriptContainer(lua_State *L, void *Key);
+UNLUA_API void* NewScriptContainer(lua_State *L, const FScriptContainerDesc &Desc);
+UNLUA_API void* CacheScriptContainer(lua_State *L, void *Key, const FScriptContainerDesc &Desc);
+UNLUA_API void* GetScriptContainer(lua_State *L, int32 Index);
+UNLUA_API void* GetScriptContainer(lua_State *L, void *Key);
 
 /**
  * Functions to push FProperty array
