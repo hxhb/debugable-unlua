@@ -17,12 +17,11 @@
 首先下载VSC之后安装`Luapanda`插件，然后在项目的Lua文件中添加：
 
 ```lua
-if WITH_LUA_DEBUG then
+if not BUILD_SHIPPING then
     require "LuaPanda"
     LuaPanda.start("127.0.0.1",8818)
 end
 ```
-可以使用`WITH_LUA_DEBUG`和`WITH_LUASOCKET`来检测调试环境。
 
 并且我也根据不同的编译环境我添加了下列全局变量：
 
