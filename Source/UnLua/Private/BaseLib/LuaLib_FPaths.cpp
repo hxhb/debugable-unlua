@@ -71,7 +71,11 @@ BEGIN_EXPORT_CLASS(FPaths)
 	ADD_STATIC_FUNCTION_EX("ProjectUserDir", FString, ProjectUserDir)
 	ADD_STATIC_FUNCTION_EX("ProjectContentDir", FString, ProjectContentDir)
 	ADD_STATIC_FUNCTION_EX("ProjectConfigDir", FString, ProjectConfigDir)
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION <= 24
 	ADD_STATIC_FUNCTION_EX("ProjectSavedDir", FString, ProjectSavedDir)
+#else
+	ADD_STATIC_FUNCTION_EX("ProjectSavedDir", const FString&, ProjectSavedDir)
+#endif
 	ADD_STATIC_FUNCTION_EX("ProjectIntermediateDir", FString, ProjectIntermediateDir)
 	ADD_STATIC_FUNCTION_EX("ProjectPluginsDir", FString, ProjectPluginsDir)
 	ADD_STATIC_FUNCTION_EX("ProjectLogDir", FString, ProjectLogDir)
