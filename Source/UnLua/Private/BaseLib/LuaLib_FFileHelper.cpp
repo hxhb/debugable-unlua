@@ -112,7 +112,7 @@ static int32 FFileHelper_SaveArrayToFile(lua_State *L)
 
 		if (NumParams == 3)
 		{
-			bAppend = lua_toboolean(L, 3);
+			bAppend = (lua_toboolean(L, 3) != 0);
 		}
 		
 
